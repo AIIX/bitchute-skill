@@ -1,0 +1,5 @@
+{
+    "android_icon": "/res/icon/bitchute-android.png",
+    "android_name": "Bitchute",
+    "android_handler": "bitchute-skill.aiix.home"
+}

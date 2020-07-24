@@ -21,31 +21,43 @@ import QtQuick.Layouts 1.4
 import QtGraphicalEffects 1.0
 import QtQuick.Controls 2.3
 import org.kde.kirigami 2.8 as Kirigami
-import org.kde.plasma.core 2.0 as PlasmaCore
-import org.kde.plasma.components 3.0 as PlasmaComponents3
-import org.kde.plasma.components 2.0 as PlasmaComponents
 import Mycroft 1.0 as Mycroft
-import "+mediacenter/views" as Views
-import "+mediacenter/delegates" as Delegates
+import "views" as Views
+import "delegates" as Delegates
 
 Mycroft.Delegate {
     id: delegate
-    property var newsListModel: sessionData.newsListBlob.videoList
-    property var musicListModel: sessionData.musicListBlob.videoList
-    property var techListModel: sessionData.techListBlob.videoList
-    property var polListModel: sessionData.polListBlob.videoList
-    property var gamingListModel: sessionData.gamingListBlob.videoList
-    property var searchListModel: sessionData.searchListBlob.videoList
-    property var historyListModel: sessionData.historyListBlob.videoList
     property bool busyIndicate: false
     
-    skillBackgroundSource: sessionData.bgImage ? "https://source.unsplash.com/weekly?" + sessionData.bgImage : "https://source.unsplash.com/weekly?music"
-
-    function searchYoutubeLiveResults(query){
-        triggerGuiEvent("BitChuteSkill.SearchLive", {"Query": query})
-        categoryLayout.currentIndex = 5
-    }
+    fillWidth: true
     
+    leftPadding: 0
+    rightPadding: 0
+    topPadding: 0
+    bottomPadding: 0
+
+    skillBackgroundSource: sessionData.bgImage ? "https://source.unsplash.com/weekly?" + sessionData.bgImage : "https://source.unsplash.com/weekly?music"
+    
+    function highlightActiveCategory(cat){
+        switch(cat){
+            case "Home":
+                //historyCatButton.checked = false
+                searchCatButton.checked = false
+                homeCatButton.checked = true
+                break;
+            case "History":
+                searchCatButton.checked = false
+                homeCatButton.checked = false
+                //historyCatButton.checked = true
+                break;
+            case "Search":
+                homeCatButton.checked = false
+                //historyCatButton.checked = false
+                searchCatButton.checked = true
+                break;
+        }
+    }
+        
     Connections {
         target: Mycroft.MycroftController
         onIntentRecevied: {
@@ -56,38 +68,9 @@ Mycroft.Delegate {
         }
     }
     
-    onNewsListModelChanged: {
-        newsCatView.model = newsListModel
-    }
-    
-    onMusicListModelChanged: {
-        musicCatView.model = musicListModel
-    }
-    
-    onTechListModelChanged: {
-        techCatView.model = techListModel
-    }
-    
-    onPolListModelChanged: {
-        polCatView.model = polListModel
-    }
-    
-    onGamingListModelChanged: {
-        gamingCatView.model = gamingListModel
-    }
-    
-    onSearchListModelChanged: {
-        searchCatView.model = searchListModel
-        console.log("SearchListModelChanged")
-        console.log(JSON.stringify(searchListModel))
-    }
-    
     onFocusChanged: {
         busyIndicatorPop.close()
         busyIndicate = false
-        if(delegate.focus){
-            console.log("focus is here")
-        }
     }
     
     Keys.onBackPressed: {
@@ -95,224 +78,113 @@ Mycroft.Delegate {
         parent.parent.parent.currentItem.contentItem.forceActiveFocus()
     }
     
-    ColumnLayout {
+    
+    contentItem: ColumnLayout {
         id: colLay1
-        anchors.fill: parent
         
-        RowLayout {
-            id: categoryRepeater
+        Rectangle {
+            color: Qt.rgba(0, 0, 0, 0.8)
             Layout.fillWidth: true
-            Layout.preferredHeight: Kirigami.Units.gridUnit * 2
-            Layout.maximumHeight: Kirigami.Units.gridUnit * 2
-            
-            Button {
-                id: newsCatButton
-                text: "News"
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                KeyNavigation.right: musicCatButton
-                KeyNavigation.down: videoQueryBox
-                
-                background: Rectangle {
-                    Kirigami.Theme.colorSet: Kirigami.Theme.Button
-                    color: newsCatButton.activeFocus ? Kirigami.Theme.highlightColor : Kirigami.Theme.backgroundColor
-                }
-                
-                onClicked: {
-                    categoryLayout.currentIndex = 0
-                }
-                Keys.onReturnPressed: {
-                    clicked();
-                }
-            }
-            
-            Button {
-                id: musicCatButton
-                text: "Music"
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                KeyNavigation.right: techCatButton
-                KeyNavigation.left: newsCatButton
-                KeyNavigation.down: videoQueryBox
-                
-                background: Rectangle {
-                    Kirigami.Theme.colorSet: Kirigami.Theme.Button
-                    color: musicCatButton.activeFocus ? Kirigami.Theme.highlightColor : Kirigami.Theme.backgroundColor
-                }
-                
-                onClicked: {
-                    categoryLayout.currentIndex = 1
-                }
-                Keys.onReturnPressed: {
-                    clicked();
-                }
-            }
-            
-            Button {
-                id: techCatButton
-                text: "Technology"
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                KeyNavigation.right: polCatButton
-                KeyNavigation.left: musicCatButton
-                KeyNavigation.down: videoQueryBox
-                
-                background: Rectangle {
-                    Kirigami.Theme.colorSet: Kirigami.Theme.Button
-                    color: techCatButton.activeFocus ? Kirigami.Theme.highlightColor : Kirigami.Theme.backgroundColor
-                }
-                
-                onClicked: {
-                    categoryLayout.currentIndex = 2
-                }
-                Keys.onReturnPressed: {
-                    clicked();
-                }
-                
-            }
-            
-            Button {
-                id: polCatButton
-                text: "Entertainment"
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                KeyNavigation.right: gamingCatButton
-                KeyNavigation.left: techCatButton
-                KeyNavigation.down: videoQueryBox
-                
-                background: Rectangle {
-                    Kirigami.Theme.colorSet: Kirigami.Theme.Button
-                    color: polCatButton.activeFocus ? Kirigami.Theme.highlightColor : Kirigami.Theme.backgroundColor
-                }
-                
-                onClicked: {
-                    categoryLayout.currentIndex = 3
-                }
-                Keys.onReturnPressed: {
-                    clicked();
-                }
-            }
-            
-            Button {
-                id: gamingCatButton
-                text: "Gaming"
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                KeyNavigation.right: polCatButton
-                KeyNavigation.left: searchCatButton
-                KeyNavigation.down: videoQueryBox
-                
-                background: Rectangle {
-                    Kirigami.Theme.colorSet: Kirigami.Theme.Button
-                    color: gamingCatButton.activeFocus ? Kirigami.Theme.highlightColor : Kirigami.Theme.backgroundColor
-                }
-                
-                onClicked: {
-                    categoryLayout.currentIndex = 4
-                }
-                Keys.onReturnPressed: {
-                    clicked();
-                }
-            }
-            
-            Button {
-                id: searchCatButton
-                text: "Search"
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                KeyNavigation.left: gamingCatButton
-                KeyNavigation.down: videoQueryBox
-                
-                background: Rectangle {
-                    Kirigami.Theme.colorSet: Kirigami.Theme.Button
-                    color: searchCatButton.activeFocus ? Kirigami.Theme.highlightColor : Kirigami.Theme.backgroundColor
-                }
-                
-                onClicked: {
-                    categoryLayout.currentIndex = 5
-                }
-                Keys.onReturnPressed: {
-                    clicked();
-                }
-            }
-        }
-        
-        RowLayout {
-            id: searchVideoInputBox
-            Layout.fillWidth: true
-            Layout.alignment: Qt.AlignTop
-            Layout.maximumHeight: Kirigami.Units.gridUnit * 3
-            z: 120
-
-            TextField {
-                id: videoQueryBox
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                onAccepted: {
-                    searchYoutubeLiveResults(videoQueryBox.text)
-                }
-                
-                KeyNavigation.up: newsCatButton
-                KeyNavigation.down: categoryLayout
-                KeyNavigation.right: searchVideoQuery
-            }
-
-            Button {
-                id: searchVideoQuery
-                Layout.preferredWidth: Kirigami.Units.gridUnit * 4.5
-                text: "Search"
-                Layout.fillHeight: true
-                highlighted: focus ? 1 : 0
-                onClicked: {
-                    searchYoutubeLiveResults(videoQueryBox.text)
-                }
-                KeyNavigation.up: newsCatButton
-                KeyNavigation.left: videoQueryBox
-                KeyNavigation.down: categoryLayout
-            }
-        }
-                        
-        Kirigami.Separator {
-            id: sept1
-            Layout.fillWidth: true
-            Layout.preferredHeight: 1
+            Layout.preferredHeight: Kirigami.Units.gridUnit * 3 
+            Layout.maximumHeight: Kirigami.Units.gridUnit * 4
             z: 100
+            
+            TopBarTabButton {
+                id: backButton
+                source: "images/back.png"
+                anchors.left: parent.left
+                anchors.leftMargin: Kirigami.Units.largeSpacing
+                width: Kirigami.Units.iconSizes.medium
+                height: parent.height
+                
+                onClicked: {
+                    delegate.parent.backRequested()
+                }
+            }
+           
+            RowLayout {
+                id: categoryRepeater
+                anchors {
+                    left: backButton.right
+                    right: parent.right
+                    top: parent.top
+                    bottom: parent.bottom
+                }
+                anchors.leftMargin: Kirigami.Units.gridUnit
+                anchors.rightMargin: Kirigami.Units.gridUnit
+                
+                TopBarTabButton {
+                    id: homeCatButton
+                    checked: true
+                    source: "images/home.png"
+                    btntext: "Home"
+                    hasText: true
+                    onClicked: {
+                        categoryLayout.pop(categoryLayout.find(function(item) { return item.name == "homeCat";}))
+                        highlightActiveCategory("Home")
+                    }
+                }
+                
+//                 TopBarTabButton {
+//                     id: historyCatButton
+//                     checked: false
+//                     source: "images/history.png"
+//                     btntext: "History"
+//                     hasText: true 
+//                     onClicked: {
+//                         if(categoryLayout.depth >= 2) {
+//                             categoryLayout.pop(null)
+//                         }
+//                         categoryLayout.push(historyCat)
+//                         highlightActiveCategory("History")
+//                     }
+//                 }
+                
+                TopBarTabButton {
+                    id: searchCatButton
+                    checked: false
+                    source: "images/search.png"
+                    btntext: "Search"
+                    hasText: true
+                    onClicked: {
+                        if(categoryLayout.depth >= 2) {
+                            categoryLayout.pop(null)
+                        }
+                        categoryLayout.push(searchCat)
+                        highlightActiveCategory("Search")
+                    }
+                }
+            }
         }
         
-        StackLayout {
+        Component {
+            id: homeCat
+            CategoryBoxHomeView {
+                id: homeCatView
+            }
+        }
+        
+        Component {
+            id: historyCat
+            CategoryBoxHistoryView {
+                id: historyCatView
+            }
+        }
+        
+        Component {
+            id: searchCat
+            CategoryBoxSearchView  {
+                id: searchCatView
+            }
+        }
+        
+        StackView {
             id: categoryLayout
             Layout.fillWidth: true
             Layout.fillHeight: true
-            currentIndex: 0
             
-            onFocusChanged: {
-                if(focus){
-                    categoryLayout.itemAt(currentIndex).forceActiveFocus()
-                }
-            }
-            
-            CategoryBoxView {
-                id: newsCatView
-            }
-            
-            CategoryBoxView {
-                id: musicCatView
-            }
-            
-            CategoryBoxView {
-                id: techCatView
-            }
-            
-            CategoryBoxView {
-                id: polCatView
-            }
-            
-            CategoryBoxView {
-                id: gamingCatView
-            }
-            
-            CategoryBoxView  {
-                id: searchCatView
+            Component.onCompleted: {
+                categoryLayout.push(homeCat)
             }
         }
     }
@@ -339,10 +211,6 @@ Mycroft.Delegate {
         onClosed: {
             busyIndicate = false
         }
-    }
-
-    Component.onCompleted: {
-        categoryLayout.itemAt(categoryLayout.currentIndex).forceActiveFocus()
     }
 }
 

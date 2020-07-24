@@ -19,30 +19,27 @@
 
 import QtQuick 2.9
 import QtQuick.Layouts 1.4
-import QtQuick.Window 2.2
-import QtGraphicalEffects 1.12
 import QtQuick.Controls 2.4 as Controls
 import org.kde.kirigami 2.5 as Kirigami
 
-Item {
+FocusScope {
     id: root
+        
     signal activated
     property string title
     property alias view: view
     property alias delegate: view.delegate
     property alias model: view.model
+    property alias count: view.count
     property alias currentIndex: view.currentIndex
     property alias currentItem: view.currentItem
     Layout.fillWidth: true
-    
     implicitHeight: view.implicitHeight + header.implicitHeight
-
-    //TODO:dynamic
-    property int columns: Math.max(3, Math.floor(width / (Kirigami.Units.gridUnit * 8)))
-
     property alias cellWidth: view.cellWidth
     property alias cellHeight: view.cellHeight
-    readonly property real screenRatio: view.Window.window ? view.Window.window.width / view.Window.window.height : 1.6
+    
+    property Item navigationUp
+    property Item navigationDown
 
     Kirigami.Heading {
         id: header
@@ -50,47 +47,59 @@ Item {
             left: parent.left
             right: parent.right
             top: parent.top
+            leftMargin: Kirigami.Units.largeSpacing * 3
         }
         text: title
-        layer.enabled: true
         color: "white"
     }
-    
-    ListView {
+
+    Kirigami.Separator {
+        z: 2
+        anchors {
+            bottom: view.top
+            left: view.left
+            right: parent.right
+        }
+        height: 1
+        color: "white"
+        opacity: 0.4
+        visible: view.contentY > 0
+    }
+
+    GridView {
         id: view
         anchors {
-            left: parent.left
-            right: parent.right
-            top: header.baseline
-            bottom: parent.bottom
-            topMargin: Kirigami.Units.largeSpacing*2
-            leftMargin: -Kirigami.Units.largeSpacing
+                left: parent.left
+                right: parent.right
+                top: header.bottom
+                bottom: parent.bottom
+                topMargin: Kirigami.Units.largeSpacing * 2
+                leftMargin: Kirigami.Units.largeSpacing * 2
+                rightMargin: Kirigami.Units.largeSpacing * 2
         }
-
-        z: activeFocus ? 10: 1
-        keyNavigationEnabled: false
+        focus: true
+        z: activeFocus ? 10: 1 
+        cellWidth: parent.width / 4
+        cellHeight: parent.height / 1.5
+        keyNavigationEnabled: true
+        highlightFollowsCurrentItem: true
         snapMode: ListView.SnapToItem
         cacheBuffer: width
-        implicitHeight: cellHeight
-        rightMargin: width-cellWidth
-        property int cellWidth: parent.width / 3
-        property int cellHeight: cellWidth + Kirigami.Units.gridUnit * 3
-        displayMarginBeginning: cellWidth
-        displayMarginEnd: cellWidth
-
-        onContentWidthChanged: if (view.currentIndex === 0) view.contentX = view.originX
-
-        onMovementEnded: flickEnded()
-        onFlickEnded: currentIndex = indexAt(mapToItem(contentItem, cellWidth, 0).x, 0)
+        highlightMoveDuration: Kirigami.Units.longDuration
+        clip: true
         
-        spacing: 0
-        orientation: ListView.Horizontal
-
+        onCurrentItemChanged: {
+            positionViewAtIndex(currentIndex, GridView.Center)
+        }
+        
         move: Transition {
             SmoothedAnimation {
                 property: "x"
                 duration: Kirigami.Units.longDuration
             }
         }
+
+        KeyNavigation.left: root
+        KeyNavigation.right: root
     }
 }

@@ -111,7 +111,7 @@ class BitChuteSkill(MycroftSkill):
         try:
             query = message.data["Query"]
             LOG.info("I am in search Live")
-            url = "https://search.bitchute.com/renderer?use=bitchute-json&name=Search&login=bcadmin&key=7ea2d72b62aa4f762cc5a348ef6642b8&query={0}".format(query)
+            url = "https://search.bitchute.com/renderer?query={0}".format(query)
             response = requests.get(url)
             html = response.text
             self.searchCategoryList["videoList"] = self.process_soup_additional(html)
@@ -147,7 +147,7 @@ class BitChuteSkill(MycroftSkill):
         self.gui["nextSongImage"] = ""
         self.gui["nextSongID"] = ""
         self.bitchuterelatedpage(PlayObject['videoID'])
-        self.gui.show_pages(["BitchutePlayer.qml", "RelatedPage.qml"], 0, override_idle=True)
+        self.gui.show_page("BitchutePlayer.qml", override_idle=True)
         #self.recentList.appendleft({"videoID": getvid, "videoTitle": video.title, "videoImage": video.thumb})
         #self.youtubesearchpagesimple(utterance)
         #self.isTitle = video.title
@@ -244,7 +244,7 @@ class BitChuteSkill(MycroftSkill):
         if "1n" in self.gui["videoAuthor"]:
             self.gui["videoAuthor"] = self.extractVideoAuthor(message.data['vidID'])
         self.gui["relatedVideoListBlob"] = ""
-        self.gui.show_pages(["BitchutePlayer.qml", "RelatedPage.qml"], 0, override_idle=True)
+        self.gui.show_page("BitchutePlayer.qml", override_idle=True)
         self.bitchuterelatedpage(message.data['vidID'])
         self.isTitle = str(message.data['vidTitle'])
 
@@ -365,7 +365,7 @@ class BitChuteSkill(MycroftSkill):
         self.gui["recentListBlob"] = ""
         self.gui["relatedVideoListBlob"] = ""
         self.gui["videoThumb"] = ""
-        self.gui.show_pages(["BitchutePlayer.qml", "RelatedPage.qml"], 0, override_idle=True)
+        self.gui.show_page("BitchutePlayer.qml", override_idle=True)
     
     def set_video_thumb(self, thumb_url):
         self.gui["setTitle"] = ""
@@ -376,7 +376,7 @@ class BitChuteSkill(MycroftSkill):
         self.gui["recentListBlob"] = ""
         self.gui["relatedVideoListBlob"] = ""
         self.gui["videoThumb"] = thumb_url
-        self.gui.show_pages(["BitchutePlayer.qml", "RelatedPage.qml"], 0, override_idle=True)
+        self.gui.show_page("BitchutePlayer.qml", override_idle=True)
         
     def get_play_video(self, query):
         self.clear_previous_video()

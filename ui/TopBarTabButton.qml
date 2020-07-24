@@ -20,12 +20,15 @@ import QtQuick 2.9
 import QtQuick.Layouts 1.4
 import QtQuick.Controls 2.3 as Controls
 import org.kde.kirigami 2.8 as Kirigami
-import org.kde.plasma.core 2.0 as PlasmaCore
 
 Controls.Button {
     id: control
     Layout.fillHeight: true
     Layout.fillWidth: true
+    property var source
+    property var btntext
+    property bool hasText: false
+    
     
     background: Rectangle {
         Kirigami.Theme.colorSet: Kirigami.Theme.Button
@@ -43,13 +46,30 @@ Controls.Button {
         }
     }
     
-    contentItem: Kirigami.Heading {
-        id: contentHome
-        horizontalAlignment: Text.AlignHCenter
-        verticalAlignment: Text.AlignVCenter
-        maximumLineCount: 1
-        text: control.text
-        level: 2
+    contentItem: Item {
+        
+        RowLayout {
+                anchors.centerIn: parent
+                spacing: Kirigami.Units.largeSpacing
+                
+            Image {
+                id: contentHome
+                Layout.preferredWidth: Kirigami.Units.iconSizes.medium
+                Layout.preferredHeight: Kirigami.Units.iconSizes.medium
+                Layout.alignment: hasText ? Qt.AlignLeft | Qt.AlignVCenter : Qt.AlignHCenter | Qt.AlignVCenter
+                source: control.source
+            }
+            Controls.Label {
+                id: contentHomeText
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                Layout.alignment: Qt.AlignVCenter
+                verticalAlignment: Text.AlignVCenter
+                visible: hasText
+                enabled: hasText
+                text: control.btntext
+            }
+        }
     }
     
     Keys.onReturnPressed: {
